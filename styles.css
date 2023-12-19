@@ -1,0 +1,39 @@
+/* styles.css */
+body {
+    margin: 0;
+}
+
+.outsideWrapper {
+    width:512px;
+    height:512px;
+}
+.insideWrapper {
+    width:100%;
+    height:100%;
+    position:relative;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    margin: auto;
+    border: 1px solid black; /* Add border for better visibility */
+}
+
+.flowImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    margin: auto;
+}
+
+.wrapper {
+    display: flex;
+}
+
+.pair {
+    margin-right: 10px; /* Adjust the margin as needed */
+}
