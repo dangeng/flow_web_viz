@@ -4,36 +4,63 @@ body {
 }
 
 .outsideWrapper {
-    width:512px;
-    height:512px;
+  width: 100%;
+  /*min-width: 224px;*/
+  max-width: 384px;
+  max-height: 384px;
+  height: 0;
+  padding-bottom: 100%; /* Maintain a 1:1 aspect ratio */
+  position: relative;
 }
+
 .insideWrapper {
-    width:100%;
-    height:100%;
-    position:relative;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: block;
-    margin: auto;
-    border: 1px solid black; /* Add border for better visibility */
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  margin: auto;
+  border: 1px solid black;
+  width: 100%;
+  height: 100%;
+  max-width: 384px;
+  max-height: 384px;
 }
 
-.flowImage {
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: block;
-    margin: auto;
+.viz {
+  width: 100%;
+  height: 100%;
 }
 
-.wrapper {
-    display: flex;
+.canvasBGImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  max-width: 384px;
+  max-height: 384px;
 }
 
-.pair {
-    margin-right: 10px; /* Adjust the margin as needed */
+.flex {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 30px;
+  max-width: 384px;
+}
+
+.flexWrapper {
+  display: block;
+  flex-basis: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
 }

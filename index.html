@@ -4,42 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <title>Arrow Follows Mouse</title>
+    <title>Flow Visualization</title>
 </head>
 <body>
     <h1>Flow Viz</h1>
-    <p>Mouse over (or tap) images to see the flow.</p>
+    <p>Hover over (or tap and drag) images to see the flow.</p>
 
-    <div class="wrapper">
-        <div class="pair">
-            <div class="outsideWrapper">
-                <div class="insideWrapper">
-                    <img src="assets/cat.v4.tilt30/flow.png" alt="Flow Image" class="flowImage">
-                    <canvas id="arrowCanvas1" width="512" height="512" data-json-path="./assets/cat.v4.tilt30/flow.json"></canvas>
-                </div>
-            </div>
+    <div class="flex">
+      <div class="flexWrapper">
+        <div class="outsideWrapper">
+          <div class="insideWrapper">
+            <img src="assets/tilt30/flow.png" alt="Flow Image" class="canvasBGImage">
+            <canvas class="viz" width="512" height="512" data-json-path="./assets/tilt30/flow.json"></canvas>
+          </div>
         </div>
-        <div class="pair">
-            <div class="outsideWrapper">
-                <div class="insideWrapper">
-                    <img src="assets/cat.v4.tilt30/flow.png" alt="Flow Image" class="flowImage">
-                    <canvas id="arrowCanvas2" width="512" height="512" data-json-path="./assets/cat.v4.tilt30/flow.json"></canvas>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <div class="outsideWrapper">
-        <div class="insideWrapper">
-            <img src="assets/topiary.v1.heavyFatBG/flow.png" alt="Flow Image" class="flowImage">
-            <canvas id="arrowCanvas2" width="512" height="512" data-json-path="./assets/topiary.v1.heavyFatBG/flow.json"></canvas>
+    <div class="flex">
+      <div class="flexWrapper">
+        <div class="outsideWrapper">
+          <div class="insideWrapper">
+            <img src="assets/stretches/flow.png" alt="Flow Image" class="canvasBGImage">
+            <canvas class="viz" width="512" height="512" data-json-path="./assets/stretches/flow.json"></canvas>
+          </div>
         </div>
+      </div>
     </div>
-    <div class="outsideWrapper">
-        <div class="insideWrapper">
-            <img src="assets/apple.v5.right150/flow.png" alt="Flow Image" class="flowImage">
-            <canvas id="arrowCanvas2" width="512" height="512" data-json-path="./assets/apple.v5.right150/flow.json"></canvas>
+
+    <div class="flex">
+      <div class="flexWrapper">
+        <div class="outsideWrapper">
+          <div class="insideWrapper">
+            <img src="assets/translate/flow.png" alt="Flow Image" class="canvasBGImage">
+            <canvas class="viz" width="512" height="512" data-json-path="./assets/translate/flow.json"></canvas>
+          </div>
         </div>
+      </div>
     </div>
 
 

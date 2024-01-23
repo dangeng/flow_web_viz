@@ -1,5 +1,42 @@
+////////////////////////
+/// HELPER FUNCTIONS ///
+////////////////////////
+
+/*
+Function to load arrows (flow) from json
+Should be of format:
+    [
+        [dx, dy], [dx, dy], [dx, dy] ...
+        [dx, dy], [dx, dy], [dx, dy] ...
+        [dx, dy], [dx, dy], [dx, dy] ...
+        ...
+    ]
+    such that data[x][y] gives offsets in x and y dirs
+*/
+async function loadFlow(path) {
+    try {
+        console.log('Loading json from: ' + path)
+        const response = await fetch(path);
+        const flow = await response.json();
+        return flow;
+    } catch (error) {
+        console.error("Error loading flow:", error);
+        return [];
+    }
+}
+
+
+
+/////////////////////////
+/// DRAWING FUNCTIONS ///
+/////////////////////////
+
+// Draws an arrow on the canvas
 // From: https://codepen.io/chanthy/pen/WxQoVG
-function drawArrow(ctx, fromx, fromy, tox, toy, arrowWidth, color){
+function drawArrow(canvas, fromx, fromy, tox, toy, arrowWidth, color){
+    // Get canvas context
+    ctx = canvas.getContext("2d");
+
     //variables to be used when creating the arrow
     var headlen = 10;
     var angle = Math.atan2(toy-fromy,tox-fromx);
@@ -37,109 +74,127 @@ function drawArrow(ctx, fromx, fromy, tox, toy, arrowWidth, color){
     ctx.restore();
 }
 
-/*
-Function to load arrows from json
-Should be of format:
-    [
-        [dx, dy], [dx, dy], [dx, dy] ...
-        [dx, dy], [dx, dy], [dx, dy] ...
-        [dx, dy], [dx, dy], [dx, dy] ...
-        ...
-    ]
-    such that data[x][y] gives offsets in x and y dirs
-*/
-async function loadArrowDirectionsFromDisk(path) {
-    try {
-        console.log('Loading json from: ' + path)
-        const response = await fetch(path);
-        const directions = await response.json();
-        return directions;
-    } catch (error) {
-        console.error("Error loading arrow directions:", error);
-        return [];
-    }
-}
-
-/*
-Given an array of displacements (see `loadArrowDirectionsFromDisk`)
-and an event, draw an arrow on the given canvas
-*/
-function updateArrowPosition(event, arrowDirections) {
-    // Get canvas
-    var thisCanvas = event.target;
-
-    // Get mouse location, relative to canvas
-    var rect = thisCanvas.getBoundingClientRect();
-    const mouseX = Math.round(event.clientX - rect.left);
-    const mouseY = Math.round(event.clientY - rect.top);
-
-    // Get size of arrow
-    const arrowSize = arrowDirections[mouseY][mouseX];
-
-    // If arrow is size 0, don't draw it
-    if (arrowSize[0] === 0 && arrowSize[1] === 0) {
-        clearCanvas(thisCanvas);
-    } else {
-        // Draw a new arrow
-        clearCanvas(thisCanvas);
-        const arrowX = mouseX + arrowSize[0];
-        const arrowY = mouseY + arrowSize[1];
-        drawArrow(
-            thisCanvas.getContext("2d"), 
-            mouseX, mouseY, 
-            arrowX, arrowY, 
-            4, 'black'
-        );
-    }
-}
-
 // Clears the canvas
 function clearCanvas(canvas) {
     canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 }
 
 /*
-Sets up mouseleave and mousemove listeners for 
-a given canvas and a given array of displacements
+Given:
+    - a (mouseover) event
+    - a canvas
+    - an array of displacements (see `loadFlow` function)
+
+Draw:
+    - an arrow on the image
 */
-function setupEventListeners(canvas, directions) {
-    // Curry the updateArrowPosition function for mousemove event
-    function updateArrowPositionWithDirections(event) {
-        updateArrowPosition(event, directions);
+function draw(event, canvas, flow) {
+    // Get current size of the canvas (just use 'src' canvas)
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+
+    // Get mouse/touch location
+    // Check if it's a touch event
+    if (event.touches && event.touches.length > 0) {
+        x = event.touches[0].clientX;
+        y = event.touches[0].clientY;
+    } else {
+        // It's a mouse event
+        x = event.clientX;
+        y = event.clientY;
     }
 
-    // Clear the canvas on mouseleave event
-    function handleMouseLeave() {
-        clearCanvas();
+    // Get mouse location, relative to event canvas
+    var rect = canvas.getBoundingClientRect();
+    const mouseX = Math.round(
+                (x - rect.left) * (canvasWidth / rect.width)
+            );
+    const mouseY = Math.round(
+                (y - rect.top) * (canvasHeight / rect.height)
+            );
+
+    // Get size of arrow
+    const arrowSize = flow[mouseY][mouseX];
+
+    // Get end point of arrow
+    const arrowX = mouseX + arrowSize[0];
+    const arrowY = mouseY + arrowSize[1];
+
+    // Clear canvases
+    clearCanvas(canvas);
+
+    // Draw arrows canvas only if arrow is non-zero
+    if (arrowSize[0] != 0 || arrowSize[1] != 0) {
+        drawArrow(
+            canvas, 
+            mouseX, mouseY, 
+            arrowX, arrowY, 
+            5, 'black'
+        );
+    }
+}
+
+
+
+///////////////////////
+/// SETUP FUNCTIONS ///
+///////////////////////
+
+/*
+Sets up mouseleave and mousemove listeners for a
+canvas and a given array of displacements (flow)
+*/
+function setupEventListeners(canvas, flow) {
+    // Bind `canvas` and `direction` to 
+    // draw function for mousemove event
+    function drawPartial(event) {
+        draw(event, canvas, flow);
+    }
+
+    // Clear all canvases on mouseleave event
+    function handleMouseLeave(event) {
+        clearCanvas(canvas);
     }
 
     // Add listeners
     canvas.addEventListener("mouseleave", handleMouseLeave);
-    canvas.addEventListener("mousemove", updateArrowPositionWithDirections);
+    canvas.addEventListener("mousemove", drawPartial);
+
+    // Add listeners for touch (mobile)
+    canvas.addEventListener('touchmove', function (e) {
+        // Prevent default to avoid unwanted behavior like scrolling
+        e.preventDefault();
+        drawPartial(e);
+    });
 }
 
 
 /*
 Initializes a given canvas:
     1. Loads the json displacement data
-    2. Waits for loading to finish, then adds event listeners to canvas
+    2. Waits for loading to finish, then adds event listeners to canvases
 */
-function initializeCanvas(canvas) {
-    console.log('initializing canvas');
-    loadArrowDirectionsFromDisk(canvas.dataset.jsonPath).then(directions => {
-        setupEventListeners(canvas, directions);
+function initializeExample(canvas) {
+    console.log('initializing canvas pair');
+
+    // Get path to json with flow info
+    const jsonPath = canvas.dataset.jsonPath;
+
+    // Load json, and then set up event listeners
+    loadFlow(jsonPath).then(flow => {
+        setupEventListeners(canvas, flow);
     });
 }
 
 // Initialize all canvases
-function initializeCanvases() {
-    var canvases = document.querySelectorAll('canvas');
-
+function initializeExamples() {
+    var canvases = document.querySelectorAll('canvas.viz');
     canvases.forEach(function (canvas) {
-        initializeCanvas(canvas);
+        initializeExample(canvas);
     });
 }
 
 // Initialize all canvases on DOM loaded
-document.addEventListener("DOMContentLoaded", initializeCanvases);
+document.addEventListener("DOMContentLoaded", initializeExamples);
+
 
